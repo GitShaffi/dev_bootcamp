@@ -4,7 +4,7 @@ spring:
     username: shoppy
     password: shoppy
     driverClassName: org.postgresql.Driver
-
+    
 logging:
   level:
     org:

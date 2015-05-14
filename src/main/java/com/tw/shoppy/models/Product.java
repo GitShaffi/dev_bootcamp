@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 
 @Getter
 @Setter
@@ -15,11 +14,13 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 @Table(name = "products")
 public class Product extends BaseModel<Product>{
+
+    public final static BaseModel.Repo<Product> REPO = new BaseModel.Repo<Product>(Product.class);
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
-    @JsonView(View.Product.class)
+    @JsonView(View.ProductListing.class)
     private String name;
 }

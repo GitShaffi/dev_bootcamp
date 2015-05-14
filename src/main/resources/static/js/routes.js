@@ -14,4 +14,14 @@ angular.module('shoppy').config(function ($stateProvider, $urlRouterProvider) {
             controller: 'ActionsController',
             templateUrl: 'views/actions.html'
         })
+        .state('base.products', {
+            url: '/products',
+            controller: 'ProductsController',
+            templateUrl: 'views/products/list.html',
+            resolve: {
+                allProducts: function (resolvers) {
+                    return resolvers.allProducts();
+                }
+            }
+        })
 });

@@ -6,6 +6,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 import java.lang.reflect.ParameterizedType;
 import java.util.List;
 import java.util.Optional;
@@ -13,13 +15,29 @@ import java.util.Optional;
 @MappedSuperclass
 public abstract class BaseModel<T> {
 
-    @Transient
-    private final Class<T> type;
+    public static class Repo<T> {
+        private Class<T> klass;
 
-    @SuppressWarnings("unchecked")
-    public BaseModel() {
-        this.type = ((Class<T>) ((ParameterizedType) getClass()
-                .getGenericSuperclass()).getActualTypeArguments()[0]);;
+        public Repo(Class<T> klass) {
+            this.klass = klass;
+        }
+
+        public List<T> all() {
+            CriteriaBuilder criteriaBuilder = entityManager().getCriteriaBuilder();
+            CriteriaQuery<T> query = criteriaBuilder.createQuery(klass);
+
+            Root<T> table = query.from(klass);
+
+            return entityManager()
+                    .createQuery(
+                            query.select(table))
+                    .getResultList();
+        }
+
+        public Optional<T> find(Long primaryKey) {
+            return Optional.ofNullable(entityManager().find(klass, primaryKey));
+        }
+
     }
 
     @SuppressWarnings("unchecked")
@@ -28,16 +46,7 @@ public abstract class BaseModel<T> {
         return (T) this;
     }
 
-    public Optional<T> find(Long primaryKey) {
-        return Optional.ofNullable(entityManager().find(type, primaryKey));
-    }
-
-    public List<T> all() {
-        CriteriaBuilder criteriaBuilder = entityManager().getCriteriaBuilder();
-        return entityManager().createQuery(criteriaBuilder.createQuery(type)).getResultList();
-    }
-
-    private EntityManager entityManager() {
+    private static EntityManager entityManager() {
         return BeanUtil.getBean(EntityManager.class);
     }
 }
